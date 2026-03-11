@@ -3,7 +3,6 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import Dashboard from "./pages/Dashboard";
 import ProfilePage from "./pages/ProfilePage";
-import OAuth2Callback from "./pages/OAuth2Callback";
 import OAuth2Callback from "./pages/OAuth2CallbackPage";
 import { useAuth } from "./utils/AuthContext";
 import "./App.css";

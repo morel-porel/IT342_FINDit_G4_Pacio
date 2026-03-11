@@ -50,7 +50,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             user.setEmail(email);
             user.setOauthProvider("google");
             user.setOauthId(oauthId);
-            // password_hash is nullable for OAuth users
+            user.setPasswordHash("OAUTH_NO_PASSWORD");
             userRepository.save(user);
         }
 

@@ -1,5 +1,6 @@
 package com.example.findit.config;
 
+import com.example.findit.security.JwtAuthenticationFilter;
 import com.example.findit.security.OAuth2AuthenticationSuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -37,9 +37,13 @@ body {
     border-radius: 16px;
     padding: 36px;
     width: 100%;
-    max-width: 400px;
+    max-width: 480px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.08);
     border: 1px solid var(--border);
+}
+
+@media (min-width: 900px) {
+    .auth-card { width: 100%; }
 }
 
 .auth-logo {
