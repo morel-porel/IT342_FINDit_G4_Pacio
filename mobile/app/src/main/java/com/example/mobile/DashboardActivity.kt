@@ -1,20 +1,27 @@
 package com.example.mobile
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 
 class DashboardActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_dashboard)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+
+        val prefs = getSharedPreferences("findit_prefs", MODE_PRIVATE)
+        val fullName = prefs.getString("fullName", "there") ?: "there"
+        val firstName = fullName.split(" ").first()
+
+        val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
+        val tvAvatar = findViewById<TextView>(R.id.tvAvatar)
+
+        tvWelcome.text = "Welcome back, $firstName!"
+        tvAvatar.text = fullName.split(" ")
+            .mapNotNull { it.firstOrNull()?.toString() }
+            .take(2)
+            .joinToString("")
+            .uppercase()
     }
 }

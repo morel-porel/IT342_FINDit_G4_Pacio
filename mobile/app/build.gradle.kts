@@ -42,7 +42,17 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation (libs.material.v1110)
+    //retrofit api calls
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    //coroutines
+    implementation(libs.kotlinx.coroutines.android)
+    //lifecycle components
+    implementation(libs.androidx.lifecycle.runtime.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+
 }
