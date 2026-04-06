@@ -4,6 +4,7 @@ import com.example.findit.dto.AuthResponse;
 import com.example.findit.dto.LoginRequest;
 import com.example.findit.dto.RegisterRequest;
 import com.example.findit.entity.User;
+import com.example.findit.factory.UserFactory;
 import com.example.findit.repository.UserRepository;
 import com.example.findit.security.TokenProvider;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,19 +15,22 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
+    private final UserFactory userFactory;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenProvider tokenProvider){
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenProvider tokenProvider, UserFactory userFactory){
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
+        this.userFactory = userFactory;
     }
     public User register(RegisterRequest request){
         if(userRepository.existsByEmail(request.email))throw new RuntimeException("Email already registered");
         if (!request.password.equals(request.confirmPassword)) throw new RuntimeException("Passwords do not match");
-        User user = new User();
-        user.setFullName(request.fullName);
-        user.setEmail(request.email);
-        user.setPasswordHash(passwordEncoder.encode(request.password));
+        User user = userFactory.createEmailUser(
+                request.fullName,
+                request.email,
+                passwordEncoder.encode(request.password)
+        );
         return  userRepository.save(user);
     }
     public AuthResponse login(LoginRequest request){

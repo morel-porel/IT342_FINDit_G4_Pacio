@@ -1,6 +1,7 @@
 package com.example.findit.security;
 
 import com.example.findit.entity.User;
+import com.example.findit.factory.UserFactory;
 import com.example.findit.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,10 +18,13 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private final UserRepository userRepository;
     private final TokenProvider tokenProvider;
+    private final UserFactory userFactory;
 
-    public OAuth2AuthenticationSuccessHandler(UserRepository userRepository, TokenProvider tokenProvider) {
+    public OAuth2AuthenticationSuccessHandler(UserRepository userRepository, TokenProvider tokenProvider, UserFactory userFactory) {
         this.userRepository = userRepository;
         this.tokenProvider = tokenProvider;
+        this.userFactory = userFactory;
+
     }
 
     @Override
@@ -45,12 +49,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             }
         } else {
             // Create new account
-            user = new User();
-            user.setFullName(name);
-            user.setEmail(email);
-            user.setOauthProvider("google");
-            user.setOauthId(oauthId);
-            user.setPasswordHash("OAUTH_NO_PASSWORD");
+            user = userFactory.createOAuthUser(name, email, "google", oauthId);
             userRepository.save(user);
         }
 
