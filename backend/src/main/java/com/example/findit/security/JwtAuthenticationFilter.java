@@ -1,7 +1,6 @@
 package com.example.findit.security;
 
 import com.example.findit.entity.User;
-import com.example.findit.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,32 +17,22 @@ import java.util.List;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final TokenProvider tokenProvider;
-    private final UserRepository userRepository;
+    private final AuthenticationProxy authenticationProxy;
 
-    public JwtAuthenticationFilter(TokenProvider tokenProvider, UserRepository userRepository) {
-        this.tokenProvider = tokenProvider;
-        this.userRepository = userRepository;
+    public JwtAuthenticationFilter(AuthenticationProxy authenticationProxy) {
+        this.authenticationProxy = authenticationProxy;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String header = request.getHeader("Authorization");
-
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
-            if (tokenProvider.validateToken(token)) {
-                Long userId = tokenProvider.getUserIdFromToken(token);
-                User user = userRepository.findById(userId).orElse(null);
-                if (user != null && user.getIsActive()) {
-                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                            user, null,
-                            List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
-                    );
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                }
-            }
+        User user = authenticationProxy.resolveAuthenticatedUser(header);
+        if (user != null) {
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                    user,null, List.of(new SimpleGrantedAuthority("ROLE_"+user.getRole()))
+            );
+            SecurityContextHolder.getContext().setAuthentication(auth);
         }
 
         filterChain.doFilter(request, response);
