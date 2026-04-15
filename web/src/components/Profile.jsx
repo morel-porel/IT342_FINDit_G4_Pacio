@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
 import api from "../utils/api";
@@ -6,6 +6,7 @@ import api from "../utils/api";
 function Profile() {
     const { user, setUser, logout } = useAuth();
     const navigate = useNavigate();
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
 
     useEffect(() => {
         api.get("/auth/me")
@@ -16,11 +17,9 @@ function Profile() {
             });
     }, []);
 
-    const handleLogout = () => {
-        if (window.confirm("Are you sure you want to log out?")) {
-            logout();
-            navigate("/login");
-        }
+    const handleLogoutConfirm = () => {
+        logout();
+        navigate("/login");
     };
 
     if (!user) return <p className="loading-text">Loading profile...</p>;
@@ -54,7 +53,11 @@ function Profile() {
                 <div className="profile-field-row">
                     <span className="profile-field-label">Member Since</span>
                     <span className="profile-field-value">
-                        {user.createdAt ? new Date(user.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "—"}
+                        {user.createdAt
+                            ? new Date(user.createdAt).toLocaleDateString("en-US", {
+                                year: "numeric", month: "long", day: "numeric"
+                              })
+                            : "—"}
                     </span>
                 </div>
             </div>
@@ -69,10 +72,33 @@ function Profile() {
                 <div className="profile-menu-item">
                     <span>🔒 Change Password</span><span className="chevron">›</span>
                 </div>
-                <div className="profile-menu-item danger" onClick={handleLogout}>
+                <div className="profile-menu-item danger" onClick={() => setShowLogoutModal(true)}>
                     <span>🚪 Log Out</span><span className="chevron">›</span>
                 </div>
             </div>
+
+            {/* ── Logout confirmation modal ── */}
+            {showLogoutModal && (
+                <div className="modal-overlay" onClick={() => setShowLogoutModal(false)}>
+                    <div className="modal-card" onClick={e => e.stopPropagation()}>
+                        <div className="modal-icon-wrap">
+                            <span className="modal-icon">🚪</span>
+                        </div>
+                        <h3 className="modal-title">Log out of FINDit?</h3>
+                        <p className="modal-body">
+                            You will be signed out of your account and redirected to the login page.
+                        </p>
+                        <div className="modal-actions">
+                            <button className="btn-logout-confirm" onClick={handleLogoutConfirm}>
+                                Yes, Log Out
+                            </button>
+                            <button className="btn-modal-cancel" onClick={() => setShowLogoutModal(false)}>
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
