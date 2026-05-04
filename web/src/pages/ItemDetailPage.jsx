@@ -162,14 +162,16 @@ function ItemDetailPage() {
                                 </p>
                             ) : (
                                 <>
-                                    <div className="claim-panel-title">Is this yours?</div>
+                                    <div className="claim-panel-title">
+                                        {isLost ? "Have you found this?" : "Is this yours?"}
+                                    </div>
                                     <p className="claim-panel-sub">
-                                        Describe how you can prove ownership of this item.
+                                        {isLost ? "Describe how you found this item." : "Describe how you can prove ownership of this item."}
                                     </p>
                                     <textarea
                                         className="claim-textarea"
                                         rows={3}
-                                        placeholder="e.g. The phone has my initials on the back, lockscreen is..."
+                                        placeholder={isLost ? "e.g. I saw it near the library entrance, you can reach me at..." : "e.g. The phone has my initials on the back, lockscreen is..."}
                                         value={claimText}
                                         onChange={e => setClaimText(e.target.value)}
                                     />
@@ -182,7 +184,7 @@ function ItemDetailPage() {
                                             if (claimText.trim()) setClaimSubmitted(true);
                                         }}
                                     >
-                                        Submit Claim
+                                        {isLost ? "Send tip" : "Submit Claim"}
                                     </button>
                                 </>
                             )}
