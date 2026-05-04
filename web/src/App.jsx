@@ -1,13 +1,13 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import Dashboard from "./pages/Dashboard";
-import ProfilePage from "./pages/ProfilePage";
-import OAuth2Callback from "./pages/OAuth2CallbackPage";
-import ReportItemPage from "./pages/ReportItemPage";
-import ItemDetailPage from "./pages/ItemDetailPage";
-import MyReportsPage from "./pages/MyReportsPage";
-import { useAuth } from "./utils/AuthContext";
+import LoginPage from "./features/auth/LoginPage";
+import RegisterPage from "./features/auth/RegisterPage";
+import Dashboard from "./features/items/Dashboard";
+import ProfilePage from "./features/profile/ProfilePage";
+import OAuth2Callback from "./features/auth/OAuth2CallbackPage";
+import ReportItemPage from "./features/items/ReportItemPage";
+import ItemDetailPage from "./features/items/ItemDetailPage";
+import MyReportsPage from "./features/myReports/MyReportsPage";
+import { useAuth } from "./features/auth/AuthContext";
 import "./App.css";
 
 function App() {

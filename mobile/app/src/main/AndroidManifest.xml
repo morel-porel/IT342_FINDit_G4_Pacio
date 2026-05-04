@@ -11,7 +11,7 @@
 
 
         <activity
-            android:name=".LoginActivity"
+            android:name=".feature.auth.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -19,8 +19,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".RegisterActivity" android:exported="false"/>
-        <activity android:name=".DashboardActivity" android:exported="false"/>
+        <activity android:name=".feature.auth.RegisterActivity" android:exported="false"/>
+        <activity android:name=".feature.dashboard.DashboardActivity" android:exported="false"/>
 
     </application>
 
