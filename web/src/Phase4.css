@@ -1,0 +1,340 @@
+/* ================================================================
+   PHASE 4 — ADMIN & MY CLAIMS CSS
+   Append this to web/src/App.css
+   ================================================================ */
+
+/* ── ADMIN LAYOUT ── */
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+    background: var(--bg);
+}
+
+.admin-sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: var(--dark);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.admin-sidebar-logo {
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: -0.5px;
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.admin-sidebar-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 8px;
+    gap: 2px;
+}
+
+.admin-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #94A3B8;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition: all 0.12s;
+    width: 100%;
+}
+
+.admin-nav-item:hover {
+    background: rgba(255,255,255,0.06);
+    color: white;
+}
+
+.admin-nav-item-active {
+    background: rgba(29,78,216,0.25);
+    color: white;
+    border-left: 3px solid var(--primary);
+}
+
+.admin-nav-icon {
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+.admin-logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 22px 18px;
+    border: none;
+    background: transparent;
+    color: #DC2626;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition: color 0.12s;
+}
+
+.admin-logout-btn:hover { color: #F87171; }
+
+/* ── ADMIN MAIN CONTENT ── */
+.admin-main {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 100vh;
+}
+
+.admin-content {
+    padding: 32px 36px;
+    max-width: 1100px;
+}
+
+.admin-page-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 24px;
+}
+
+.admin-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.admin-page-header .admin-page-title { margin-bottom: 0; }
+
+.admin-filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.admin-section { margin-top: 32px; }
+
+.admin-section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 14px;
+}
+
+/* ── STAT CARDS ── */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 8px;
+}
+
+@media (max-width: 900px) {
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+    .stat-grid { grid-template-columns: 1fr; }
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--dark);
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+    margin-top: 4px;
+}
+
+/* ── ACTION BUTTONS (admin specific) ── */
+.action-delete {
+    background: #FEE2E2;
+    color: var(--error);
+    border-color: #FECACA;
+}
+.action-delete:hover { background: #FECACA; }
+
+.admin-approve-btn {
+    background: #DCFCE7;
+    color: var(--success);
+    border-color: #BBF7D0;
+}
+.admin-approve-btn:hover { background: #BBF7D0; }
+
+/* ── ROLE BADGES ── */
+.role-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--slate);
+}
+
+.role-badge-admin {
+    background: rgba(29,78,216,0.1);
+    color: var(--primary);
+    border-color: #BFDBFE;
+}
+
+.role-badge-user {
+    background: var(--bg);
+    color: var(--slate);
+}
+
+/* ── CLAIM DETAIL PANEL ── */
+.claim-detail-panel {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.claim-detail-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 16px;
+}
+
+.claim-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+    .claim-detail-grid { grid-template-columns: 1fr; }
+}
+
+.claim-detail-card {
+    background: var(--bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.claim-detail-card-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--muted);
+    margin-bottom: 4px;
+}
+
+.claim-detail-card-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--dark);
+}
+
+.claim-detail-card-sub {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.claim-detail-card-desc {
+    font-size: 13px;
+    color: var(--slate);
+    line-height: 1.5;
+    font-style: italic;
+    margin-top: 6px;
+}
+
+/* Claim detail action buttons row */
+.claim-detail-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+.claim-action-approve {
+    padding: 10px 22px;
+    border-radius: 8px;
+    border: none;
+    background: var(--success);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.12s;
+}
+.claim-action-approve:hover { background: #15803D; }
+.claim-action-approve:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.claim-action-reject {
+    padding: 10px 22px;
+    border-radius: 8px;
+    border: none;
+    background: #FEE2E2;
+    color: var(--error);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.12s;
+}
+.claim-action-reject:hover { background: #FECACA; }
+.claim-action-reject:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.claim-action-note {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+    flex: 1;
+}
+
+/* ── RESPONSIVE: collapse sidebar on small screens ── */
+@media (max-width: 768px) {
+    .admin-sidebar {
+        width: 60px;
+        min-width: 60px;
+    }
+    .admin-sidebar-logo { font-size: 14px; padding: 18px 10px; }
+    .admin-nav-item span:not(.admin-nav-icon) { display: none; }
+    .admin-logout-btn span:not(.admin-nav-icon) { display: none; }
+    .admin-content { padding: 20px 16px; }
+    .claim-detail-grid { grid-template-columns: 1fr; }
+}

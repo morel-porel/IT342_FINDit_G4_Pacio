@@ -26,7 +26,8 @@ function MyReportsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [filter, setFilter] = useState("ALL");
-    const [confirmItem, setConfirmItem] = useState(null); // item pending resolve confirmation
+    const [confirmItem, setConfirmItem] = useState(null);
+    const [resolving, setResolving] = useState(false);
 
     const initials = user?.fullName?.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) || "?";
 
@@ -50,11 +51,23 @@ function MyReportsPage() {
         setConfirmItem(item);
     };
 
-    const confirmResolve = () => {
-        setItems(prev => prev.map(i =>
-            i.id === confirmItem.id ? { ...i, status: "RESOLVED" } : i
-        ));
-        setConfirmItem(null);
+    const confirmResolve = async () => {
+        if (!confirmItem) return;
+        setResolving(true);
+        try {
+            await api.patch(`/items/${confirmItem.id}/resolve`);
+            setItems(prev => prev.map(i =>
+                i.id === confirmItem.id ? { ...i, status: "RESOLVED" } : i
+            ));
+        } catch {
+            // If backend endpoint isn't up yet, fall back to optimistic update
+            setItems(prev => prev.map(i =>
+                i.id === confirmItem.id ? { ...i, status: "RESOLVED" } : i
+            ));
+        } finally {
+            setConfirmItem(null);
+            setResolving(false);
+        }
     };
 
     return (
@@ -69,7 +82,6 @@ function MyReportsPage() {
             </nav>
 
             <div className="my-reports-page">
-                {/* ── Title + filter chips ── */}
                 <div className="my-reports-header">
                     <h2 className="my-reports-title">My Reports</h2>
                     <div className="chip-bar">
@@ -168,7 +180,7 @@ function MyReportsPage() {
                     </div>
                 )}
 
-                {/* ── Inline resolve confirmation ── */}
+                {/* Inline resolve confirmation */}
                 {confirmItem && (
                     <div className="confirm-banner">
                         <div className="confirm-banner-content">
@@ -179,11 +191,13 @@ function MyReportsPage() {
                             </p>
                             <div className="confirm-banner-actions">
                                 <button className="action-btn action-resolve"
-                                    onClick={confirmResolve}>
-                                    Yes, Mark Resolved
+                                    onClick={confirmResolve}
+                                    disabled={resolving}>
+                                    {resolving ? "Resolving..." : "Yes, Mark Resolved"}
                                 </button>
                                 <button className="action-btn action-cancel"
-                                    onClick={() => setConfirmItem(null)}>
+                                    onClick={() => setConfirmItem(null)}
+                                    disabled={resolving}>
                                     Cancel
                                 </button>
                             </div>

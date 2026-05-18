@@ -7,6 +7,7 @@ const CATEGORY_ICONS = {
     "Electronics": "💻", "Clothing": "👕", "Accessories": "🎒",
     "Documents": "📄", "Keys": "🔑", "Wallet / Bag": "👜",
     "Books": "📚", "Sports": "⚽", "Other": "📦",
+    "ID/Cards": "🪪", "Bag": "🎒", "Books/Documents": "📄",
 };
 
 const STATUS_META = {
@@ -22,21 +23,53 @@ function ItemDetailPage() {
     const navigate = useNavigate();
     const location = useLocation();
     const { user } = useAuth();
+
     const [item, setItem] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [claimText, setClaimText] = useState("");
     const [claimSubmitted, setClaimSubmitted] = useState(false);
-    const justCreated = location.state?.justCreated;
+    const [claimSubmitting, setClaimSubmitting] = useState(false);
+    const [claimError, setClaimError] = useState(null);
+    const [proofFile, setProofFile] = useState(null);
 
+    const justCreated = location.state?.justCreated;
     const initials = user?.fullName?.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) || "?";
 
     useEffect(() => {
         api.get(`/items/${id}`)
             .then(res => setItem(res.data))
-            .catch(() => setError("Item not found."))
+            .catch(() => setError("Item not found or could not be loaded."))
             .finally(() => setLoading(false));
     }, [id]);
+
+    const handleClaimSubmit = async () => {
+        if (!claimText.trim()) {
+            setClaimError("Please describe your proof of ownership.");
+            return;
+        }
+        setClaimSubmitting(true);
+        setClaimError(null);
+        try {
+            const formData = new FormData();
+            formData.append("itemId", item.id);
+            formData.append("proofDescription", claimText.trim());
+            if (proofFile) formData.append("proofImage", proofFile);
+
+            await api.post("/claims", formData, {
+                headers: { "Content-Type": "multipart/form-data" }
+            });
+            setClaimSubmitted(true);
+            // Refresh item to reflect PENDING status
+            const updated = await api.get(`/items/${id}`);
+            setItem(updated.data);
+        } catch (err) {
+            const msg = err.response?.data || "Failed to submit claim. Please try again.";
+            setClaimError(typeof msg === "string" ? msg : "Failed to submit claim.");
+        } finally {
+            setClaimSubmitting(false);
+        }
+    };
 
     if (loading) return (
         <div className="dashboard-page">
@@ -60,10 +93,10 @@ function ItemDetailPage() {
         </div>
     );
 
-    const isLost = item.type === "LOST";
+    const isLost  = item.type === "LOST";
     const isOwner = user?.id === item.reporter?.id;
-    const icon = CATEGORY_ICONS[item.category] || "📦";
-    const sm = STATUS_META[item.status] || { label: item.status, cls: "status-open" };
+    const icon    = CATEGORY_ICONS[item.category] || "📦";
+    const sm      = STATUS_META[item.status] || { label: item.status, cls: "status-open" };
 
     const dateStr = new Date(item.dateLostFound).toLocaleDateString("en-US", {
         month: "long", day: "numeric", year: "numeric"
@@ -72,7 +105,7 @@ function ItemDetailPage() {
 
     return (
         <div className="dashboard-page">
-            {/* ── Header: ← Back  FINDit  avatar ── */}
+            {/* Header */}
             <nav className="topbar topbar-simple">
                 <button className="btn-back" onClick={() => navigate("/dashboard")}>← Back</button>
                 <div className="topbar-logo">FINDit</div>
@@ -85,9 +118,9 @@ function ItemDetailPage() {
                 </div>
             )}
 
-            {/* ── Split layout: image left, details right ── */}
+            {/* Split layout */}
             <div className="detail-layout">
-                {/* Left — large image */}
+                {/* Image pane */}
                 <div className="detail-image-pane">
                     {item.imageUrl ? (
                         <img src={item.imageUrl} alt={item.name} className="detail-main-img" />
@@ -98,9 +131,9 @@ function ItemDetailPage() {
                     )}
                 </div>
 
-                {/* Right — details */}
+                {/* Info pane */}
                 <div className="detail-info-pane">
-                    {/* Badges row */}
+                    {/* Badges */}
                     <div className="detail-badges">
                         <span className={`item-badge ${isLost ? "badge-lost" : "badge-found"}`}>
                             {isLost ? "Lost" : "Found"}
@@ -109,22 +142,18 @@ function ItemDetailPage() {
                         <span className="category-tag">{item.category}</span>
                     </div>
 
-                    {/* Item name */}
                     <h2 className="detail-title">{item.name}</h2>
 
-                    {/* Meta line */}
                     <div className="detail-meta-line">
                         <span>📍 {item.location}</span>
                         <span>🗓 {dateStr}</span>
                         <span>👤 Reported by {reporterFirst}{isOwner ? " (You)" : ""}</span>
                     </div>
 
-                    {/* Description */}
                     {item.description && (
                         <p className="detail-description">{item.description}</p>
                     )}
 
-                    {/* Info rows */}
                     <div className="detail-info-rows">
                         <div className="detail-info-row">
                             <span className="detail-info-label">Category</span>
@@ -135,9 +164,7 @@ function ItemDetailPage() {
                             <span className="detail-info-value">{item.location}</span>
                         </div>
                         <div className="detail-info-row">
-                            <span className="detail-info-label">
-                                Date {isLost ? "Lost" : "Found"}
-                            </span>
+                            <span className="detail-info-label">Date {isLost ? "Lost" : "Found"}</span>
                             <span className="detail-info-value">{dateStr}</span>
                         </div>
                     </div>
@@ -153,12 +180,12 @@ function ItemDetailPage() {
                         </div>
                     )}
 
-                    {/* Claim panel — only shown to non-owners on OPEN items */}
+                    {/* Claim panel — non-owners, OPEN items */}
                     {!isOwner && item.status === "OPEN" && (
                         <div className="claim-panel">
                             {claimSubmitted ? (
                                 <p className="claim-submitted">
-                                    ✅ Your claim has been submitted. The admin will review it.
+                                    ✅ Your claim has been submitted. The admin will review it shortly.
                                 </p>
                             ) : (
                                 <>
@@ -166,28 +193,48 @@ function ItemDetailPage() {
                                         {isLost ? "Have you found this?" : "Is this yours?"}
                                     </div>
                                     <p className="claim-panel-sub">
-                                        {isLost ? "Describe how you found this item." : "Describe how you can prove ownership of this item."}
+                                        {isLost
+                                            ? "Describe how you found this item and how the owner can contact you."
+                                            : "Describe how you can prove ownership of this item."}
                                     </p>
                                     <textarea
                                         className="claim-textarea"
                                         rows={3}
-                                        placeholder={isLost ? "e.g. I saw it near the library entrance, you can reach me at..." : "e.g. The phone has my initials on the back, lockscreen is..."}
+                                        placeholder={isLost
+                                            ? "e.g. I found it near the library entrance, you can reach me at..."
+                                            : "e.g. The phone has my initials on the back, lockscreen is my ID photo..."}
                                         value={claimText}
                                         onChange={e => setClaimText(e.target.value)}
                                     />
-                                    <button className="claim-attach">
+                                    {claimError && (
+                                        <p style={{ color: "var(--error)", fontSize: 12 }}>{claimError}</p>
+                                    )}
+                                    <label className="claim-attach">
+                                        <input
+                                            type="file"
+                                            accept="image/jpeg,image/png"
+                                            style={{ display: "none" }}
+                                            onChange={e => setProofFile(e.target.files[0] || null)}
+                                        />
                                         + Attach Proof Photos <span className="optional">(optional)</span>
-                                    </button>
+                                        {proofFile && <span style={{ color: "var(--success)", marginLeft: 8 }}>{proofFile.name}</span>}
+                                    </label>
                                     <button
                                         className="btn-primary btn-sm claim-submit-btn"
-                                        onClick={() => {
-                                            if (claimText.trim()) setClaimSubmitted(true);
-                                        }}
+                                        onClick={handleClaimSubmit}
+                                        disabled={claimSubmitting}
                                     >
-                                        {isLost ? "Send tip" : "Submit Claim"}
+                                        {claimSubmitting ? "Submitting..." : isLost ? "Send Tip" : "Submit Claim"}
                                     </button>
                                 </>
                             )}
+                        </div>
+                    )}
+
+                    {/* Pending status notice for non-owners */}
+                    {!isOwner && item.status === "PENDING" && (
+                        <div className="owner-note-box" style={{ color: "var(--warning)", borderColor: "#FDE68A", background: "#FFFBEB" }}>
+                            ⏳ This item has a pending claim under review by an admin.
                         </div>
                     )}
 
