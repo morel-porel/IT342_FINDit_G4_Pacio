@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import api from "../../shared/api/api";
@@ -7,6 +7,7 @@ const CATEGORY_ICONS = {
     "Electronics": "💻", "Clothing": "👕", "Accessories": "🎒",
     "Documents": "📄", "Keys": "🔑", "Wallet / Bag": "👜",
     "Books": "📚", "Sports": "⚽", "Other": "📦",
+    "ID/Cards": "🪪", "Bag": "🎒", "Books/Documents": "📄",
 };
 
 const STATUS_META = {
@@ -63,14 +64,22 @@ function Dashboard() {
     const [statusFilter, setStatusFilter] = useState("ALL");
     const [search, setSearch] = useState("");
     const [error, setError] = useState(null);
+    const intervalRef = useRef(null);
 
     const initials = user?.fullName?.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) || "?";
 
-    useEffect(() => {
+    const fetchItems = () => {
         api.get("/items")
             .then(res => setItems(res.data))
             .catch(() => setError("Failed to load items. Please try again."))
             .finally(() => setLoading(false));
+    };
+
+    useEffect(() => {
+        fetchItems();
+        // Polling every 10 seconds per SDD requirement
+        intervalRef.current = setInterval(fetchItems, 10000);
+        return () => clearInterval(intervalRef.current);
     }, []);
 
     const categories = ["ALL", ...Array.from(new Set(items.map(i => i.category))).sort()];
@@ -88,7 +97,7 @@ function Dashboard() {
 
     return (
         <div className="dashboard-page">
-            {/* ── Topbar with inline search ── */}
+            {/* Topbar */}
             <nav className="topbar">
                 <div className="topbar-logo">FINDit</div>
                 <div className="topbar-search">
@@ -111,7 +120,7 @@ function Dashboard() {
                 </div>
             </nav>
 
-            {/* ── Filter bar ── */}
+            {/* Filter bar */}
             <div className="filter-bar">
                 <div className="filter-tabs">
                     {[
@@ -146,7 +155,7 @@ function Dashboard() {
                 </div>
             </div>
 
-            {/* ── Item grid ── */}
+            {/* Item grid */}
             <div className="dashboard-feed">
                 {loading && <p className="loading-text">Loading items...</p>}
                 {error   && <p className="error-text">{error}</p>}
