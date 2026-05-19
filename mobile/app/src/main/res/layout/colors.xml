@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- SDD design system -->
+    <color name="primary">#1D4ED8</color>
+    <color name="success">#16A34A</color>
+    <color name="warning">#D97706</color>
+    <color name="error">#DC2626</color>
+
+    <!-- Semantic backgrounds -->
+    <color name="background_primary">#DBEAFE</color>
+    <color name="background_success">#DCFCE7</color>
+    <color name="background_warning">#FEF3C7</color>
+    <color name="background_error">#FEE2E2</color>
+    <color name="background_neutral">#F1F5F9</color>
+
+    <!-- Neutral grays -->
+    <color name="text_primary">#0F172A</color>
+    <color name="text_secondary">#334155</color>
+    <color name="text_muted">#64748B</color>
+    <color name="text_placeholder">#94A3B8</color>
+    <color name="border">#E2E8F0</color>
+    <color name="surface">#F8FAFC</color>
+</resources>

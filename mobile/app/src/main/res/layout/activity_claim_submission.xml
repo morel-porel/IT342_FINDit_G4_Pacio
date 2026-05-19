@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8FAFC">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Top Bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:orientation="horizontal"
+            android:background="#FFFFFF"
+            android:paddingStart="16dp"
+            android:paddingEnd="20dp"
+            android:gravity="center_vertical"
+            android:elevation="2dp">
+
+            <ImageView
+                android:id="@+id/ivBack"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_back"
+                android:contentDescription="Back"
+                android:layout_marginEnd="12dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Submit a Claim"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#0F172A"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Claiming Item card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/card_background"
+                android:padding="14dp"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="20dp">
+
+                <ImageView
+                    android:id="@+id/ivItemThumbnail"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:scaleType="centerCrop"
+                    android:background="@drawable/input_background"
+                    android:layout_marginEnd="14dp"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvItemName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Item Name"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#0F172A"
+                        android:layout_marginBottom="2dp"/>
+
+                    <TextView
+                        android:id="@+id/tvItemLocation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Location"
+                        android:textSize="12sp"
+                        android:textColor="#64748B"
+                        android:layout_marginBottom="2dp"/>
+
+                    <TextView
+                        android:id="@+id/tvItemDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Date"
+                        android:textSize="12sp"
+                        android:textColor="#94A3B8"/>
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Section label -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Is this yours?"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#0F172A"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Proof description -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Proof of Ownership"
+                android:textSize="12sp"
+                android:textColor="#334155"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp"/>
+
+            <EditText
+                android:id="@+id/etProofDescription"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:hint="Describe the color, brand, unique marks, contents, or any detail that proves this is yours..."
+                android:inputType="textMultiLine|textCapSentences"
+                android:gravity="top|start"
+                android:background="@drawable/input_background"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="10dp"
+                android:textSize="13sp"
+                android:textColor="#0F172A"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Optional proof photo -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Proof Photo (Optional)"
+                android:textSize="12sp"
+                android:textColor="#334155"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="JPG/PNG, max 5MB"
+                android:textSize="11sp"
+                android:textColor="#94A3B8"
+                android:layout_marginBottom="8dp"/>
+
+            <Button
+                android:id="@+id/btnPickProofPhoto"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:text="Attach Proof Photo"
+                android:backgroundTint="#E2E8F0"
+                android:textColor="#334155"
+                android:textSize="13sp"
+                android:layout_marginBottom="10dp"/>
+
+            <ImageView
+                android:id="@+id/ivProofPreview"
+                android:layout_width="match_parent"
+                android:layout_height="140dp"
+                android:scaleType="centerCrop"
+                android:background="@drawable/input_background"
+                android:visibility="gone"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/tvProofPhotoName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="#64748B"
+                android:visibility="gone"
+                android:layout_marginBottom="24dp"/>
+
+            <!-- Submit -->
+            <Button
+                android:id="@+id/btnSubmitClaim"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:text="Submit Claim"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#1D4ED8"
+                android:textStyle="bold"
+                android:textSize="15sp"/>
+
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

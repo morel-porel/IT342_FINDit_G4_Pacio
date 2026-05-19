@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@drawable/card_background"
+    android:padding="12dp"
+    android:layout_marginBottom="10dp"
+    android:gravity="center_vertical">
+
+    <ImageView
+        android:id="@+id/ivItemThumbnail"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:scaleType="centerCrop"
+        android:background="@drawable/input_background"
+        android:layout_marginEnd="12dp"/>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvItemName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Item Name"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#0F172A"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:layout_marginBottom="2dp"/>
+
+        <TextView
+            android:id="@+id/tvItemLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Location"
+            android:textSize="12sp"
+            android:textColor="#64748B"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:layout_marginBottom="2dp"/>
+
+        <TextView
+            android:id="@+id/tvItemDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Date"
+            android:textSize="11sp"
+            android:textColor="#94A3B8"
+            android:layout_marginBottom="8dp"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvTypeBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="FOUND"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:background="@drawable/badge_background"
+                android:layout_marginEnd="6dp"/>
+
+            <TextView
+                android:id="@+id/tvStatusBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="OPEN"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:background="@drawable/badge_background"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Resolve button -->
+    <Button
+        android:id="@+id/btnResolve"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:text="Resolve"
+        android:textSize="12sp"
+        android:backgroundTint="#16A34A"
+        android:textColor="#FFFFFF"
+        android:layout_marginStart="8dp"
+        android:visibility="gone"/>
+
+</LinearLayout>
