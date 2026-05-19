@@ -6,6 +6,7 @@ import com.example.findit.feature.user.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,14 +21,30 @@ public class ItemController {
         this.itemService = itemService;
     }
 
-    // POST /api/items — report a lost or found item (authenticated)
-    @PostMapping
+    // POST /api/items — report a lost or found item (multipart, authenticated)
+    @PostMapping(consumes = {"multipart/form-data", "application/json"})
     public ResponseEntity<?> reportItem(
-            @RequestBody ItemRequest request,
+            @RequestParam(value = "type", required = false) String type,
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "dateLostFound", required = false) String dateLostFound,
+            @RequestParam(value = "location", required = false) String location,
+            @RequestParam(value = "photo", required = false) MultipartFile photo,
             @AuthenticationPrincipal User currentUser
     ) {
         try {
-            ItemResponse response = itemService.reportItem(request, currentUser);
+            ItemRequest request = new ItemRequest();
+            request.type = type;
+            request.name = name;
+            request.category = category;
+            request.description = description;
+            request.location = location;
+            if (dateLostFound != null && !dateLostFound.isBlank()) {
+                request.dateLostFound = java.time.LocalDate.parse(dateLostFound);
+            }
+
+            ItemResponse response = itemService.reportItem(request, photo, currentUser);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -36,8 +53,12 @@ public class ItemController {
 
     // GET /api/items — public item feed
     @GetMapping
-    public ResponseEntity<List<ItemResponse>> getAllItems() {
-        return ResponseEntity.ok(itemService.getAllItems());
+    public ResponseEntity<List<ItemResponse>> getAllItems(
+            @RequestParam(value = "type", required = false) String type,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "category", required = false) String category
+    ) {
+        return ResponseEntity.ok(itemService.getAllItems(type, status, category));
     }
 
     // GET /api/items/{id} — single item detail
@@ -56,5 +77,48 @@ public class ItemController {
             @AuthenticationPrincipal User currentUser
     ) {
         return ResponseEntity.ok(itemService.getMyItems(currentUser.getId()));
+    }
+
+    // PUT /api/items/{id} — update item (owner or ADMIN)
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateItem(
+            @PathVariable Long id,
+            @RequestBody ItemRequest request,
+            @AuthenticationPrincipal User currentUser
+    ) {
+        try {
+            ItemResponse response = itemService.updateItem(id, request, currentUser);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // DELETE /api/items/{id} — delete item (owner or ADMIN)
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteItem(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User currentUser
+    ) {
+        try {
+            itemService.deleteItem(id, currentUser);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // PATCH /api/items/{id}/resolve — owner marks their lost item as RESOLVED
+    @PatchMapping("/{id}/resolve")
+    public ResponseEntity<?> resolveItem(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User currentUser
+    ) {
+        try {
+            ItemResponse response = itemService.resolveItem(id, currentUser);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

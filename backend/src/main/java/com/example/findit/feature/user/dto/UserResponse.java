@@ -8,6 +8,7 @@ public class UserResponse {
     public String fullName;
     public String email;
     public String role;
+    public Boolean isActive;
     public LocalDateTime createdAt;
 
     public static UserResponse from(User user) {
@@ -16,6 +17,7 @@ public class UserResponse {
         r.fullName = user.getFullName();
         r.email = user.getEmail();
         r.role = user.getRole();
+        r.isActive = user.getIsActive();
         r.createdAt = user.getCreatedAt();
         return r;
     }

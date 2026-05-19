@@ -7,11 +7,19 @@ import com.example.findit.feature.item.ItemRepository;
 import com.example.findit.feature.item.entity.Item;
 import com.example.findit.feature.user.User;
 import com.example.findit.shared.email.EmailService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +28,9 @@ public class ClaimService {
     private final ClaimRepository claimRepository;
     private final ItemRepository itemRepository;
     private final EmailService emailService;
+
+    @Value("${upload.dir:uploads}")
+    private String uploadDir;
 
     public ClaimService(ClaimRepository claimRepository,
                         ItemRepository itemRepository,
@@ -30,12 +41,12 @@ public class ClaimService {
     }
 
     /**
-     * POST /api/claims
+     * POST /api/claims — with optional proof image upload
      * AC-6: Only OPEN items can be claimed. Only one active (PENDING) claim per item.
      * Reporter cannot claim their own item.
      */
     @Transactional
-    public ClaimResponse submitClaim(ClaimRequest request, User claimant) {
+    public ClaimResponse submitClaim(ClaimRequest request, MultipartFile proofImage, User claimant) {
         Item item = itemRepository.findById(request.itemId)
                 .orElseThrow(() -> new RuntimeException("CLAIM-001: Item not found"));
 
@@ -62,15 +73,31 @@ public class ClaimService {
         claim.setItem(item);
         claim.setClaimant(claimant);
         claim.setProofDescription(request.proofDescription.trim());
-        claim.setProofImageUrl(request.proofImageUrl);
         claim.setStatus("PENDING");
 
-        // Set item to PENDING — locked from further new claims
+        // Handle optional proof image upload — SDD: "Proof Image (optional image upload, JPG/PNG max 5MB)"
+        if (proofImage != null && !proofImage.isEmpty()) {
+            String proofImageUrl = saveProofImage(proofImage);
+            claim.setProofImageUrl(proofImageUrl);
+        } else if (request.proofImageUrl != null && !request.proofImageUrl.isBlank()) {
+            // Accept pre-uploaded URL if provided directly (e.g., from mobile)
+            claim.setProofImageUrl(request.proofImageUrl);
+        }
+
+        // Set item to PENDING — locked from further new claims (AC-6)
         item.setStatus("PENDING");
         itemRepository.save(item);
 
         Claim saved = claimRepository.save(claim);
         return ClaimResponse.from(saved);
+    }
+
+    /**
+     * Backward-compatible overload for JSON body without file
+     */
+    @Transactional
+    public ClaimResponse submitClaim(ClaimRequest request, User claimant) {
+        return submitClaim(request, null, claimant);
     }
 
     /**
@@ -119,7 +146,7 @@ public class ClaimService {
 
         Claim saved = claimRepository.save(claim);
 
-        // AC-7: Send claim approved email to claimant
+        // AC-7: Send claim approved email to claimant via SMTP
         emailService.sendClaimApprovedEmail(claim.getClaimant(), item);
 
         return ClaimResponse.from(saved);
@@ -144,9 +171,47 @@ public class ClaimService {
 
         Claim saved = claimRepository.save(claim);
 
-        // AC-8: Send claim rejected email to claimant
+        // AC-8: Send claim rejected email to claimant via SMTP
         emailService.sendClaimRejectedEmail(claim.getClaimant(), item);
 
         return ClaimResponse.from(saved);
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Save proof image to /uploads/ directory
+    // SDD: "Proof Image (optional image upload, JPG/PNG max 5MB)"
+    // ─────────────────────────────────────────────────────────
+    private String saveProofImage(MultipartFile file) {
+        try {
+            String contentType = file.getContentType();
+            if (contentType == null ||
+                    (!contentType.equals("image/jpeg") && !contentType.equals("image/png"))) {
+                throw new RuntimeException("FILE-002: Only JPG and PNG files are accepted");
+            }
+            if (file.getSize() > 5 * 1024 * 1024) {
+                throw new RuntimeException("FILE-001: Proof image must not exceed 5MB");
+            }
+
+            Path uploadPath = Paths.get(uploadDir);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            String originalFilename = file.getOriginalFilename();
+            String extension = (originalFilename != null && originalFilename.contains("."))
+                    ? originalFilename.substring(originalFilename.lastIndexOf('.'))
+                    : ".jpg";
+            String uniqueFilename = "proof_" + UUID.randomUUID().toString() + extension;
+
+            Path destination = uploadPath.resolve(uniqueFilename);
+            Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
+
+            return "/uploads/" + uniqueFilename;
+
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (IOException e) {
+            throw new RuntimeException("SYS-001: Failed to store proof image: " + e.getMessage());
+        }
     }
 }

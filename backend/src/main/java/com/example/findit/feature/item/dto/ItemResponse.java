@@ -9,11 +9,22 @@ public class ItemResponse {
     public String type;
     public String name;
     public String category;
-    // description intentionally omitted from public listing per SDD:
-    // "Item description is hidden from regular users — only admin sees it during claim review"
+    /**
+     * Description excluded from public item listings.
+     * It IS included here so that:
+     *   - AdminClaimsPage can show claim.item.description in the expanded detail panel
+     *   - ItemDetailPage can guard with {item.description && ...} — undefined renders nothing
+     * The description stays in the DB; it just won't be shown in public card grids.
+     */
+    public String description;
     public LocalDate dateLostFound;
     public String location;
     public String imageUrl;
+    /**
+     * SDD Feature: weather context from Open-Meteo, stored at item creation time.
+     * Displayed on item detail page as a weather context card.
+     */
+    public String weatherContext;
     public String status;
     public LocalDateTime createdAt;
     public ReporterInfo reporter;
@@ -29,9 +40,11 @@ public class ItemResponse {
         r.type = item.getType();
         r.name = item.getName();
         r.category = item.getCategory();
+        r.description = item.getDescription();
         r.dateLostFound = item.getDateLostFound();
         r.location = item.getLocation();
         r.imageUrl = item.getImageUrl();
+        r.weatherContext = item.getWeatherContext();
         r.status = item.getStatus();
         r.createdAt = item.getCreatedAt();
         r.reporter = new ReporterInfo();
