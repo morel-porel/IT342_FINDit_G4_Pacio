@@ -4,6 +4,7 @@ import com.example.findit.feature.item.dto.ItemRequest;
 import com.example.findit.feature.item.dto.ItemResponse;
 import com.example.findit.feature.item.entity.Item;
 import com.example.findit.feature.user.User;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,6 +36,16 @@ public class ItemService {
     @Value("${upload.dir:uploads}")
     private String uploadDir;
 
+    @Value("${SUPABASE_STORAGE_URL}")
+    private String supabaseUrl;
+
+    @Value("${SUPABASE_SERVICE_KEY}")
+    private String supabaseServiceKey;
+    @PostConstruct
+    public void debugConfig() {
+        System.out.println("[ItemService] Supabase URL: " + supabaseUrl);
+        System.out.println("[ItemService] Service key set: " + (supabaseServiceKey != null && !supabaseServiceKey.isBlank()));
+    }
     public ItemService(ItemRepository itemRepository) {
         this.itemRepository = itemRepository;
     }
@@ -273,41 +284,49 @@ public class ItemService {
     // SDD AC-10: Images stored on server in /uploads directory
     // ─────────────────────────────────────────────────────────
     private String saveUploadedFile(MultipartFile file) {
+        if (supabaseUrl == null || supabaseUrl.isBlank()) {
+            throw new RuntimeException("SYS-001: Supabase is not configured. Set SUPABASE_URL and SUPABASE_SERVICE_KEY in your .env");
+        }
         try {
-            // Validate file type — SDD AC-10: JPG or PNG only
             String contentType = file.getContentType();
             if (contentType == null ||
-                    (!contentType.equals("image/jpeg") && !contentType.equals("image/png"))) {
-                throw new RuntimeException("FILE-002: Only JPG and PNG files are accepted");
+                    (!contentType.equals("image/jpeg") && !contentType.equals("image/png")
+                            && !contentType.equals("image/webp"))) {
+                throw new RuntimeException("FILE-002: Only JPG, PNG and WEBP files are accepted");
             }
-
-            // Validate file size — SDD AC-10: max 5MB
             if (file.getSize() > 5 * 1024 * 1024) {
                 throw new RuntimeException("FILE-001: File size must not exceed 5MB");
             }
 
-            // Create uploads directory if it doesn't exist
-            Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
-            // Generate unique filename to prevent collisions
             String originalFilename = file.getOriginalFilename();
             String extension = (originalFilename != null && originalFilename.contains("."))
                     ? originalFilename.substring(originalFilename.lastIndexOf('.'))
                     : ".jpg";
             String uniqueFilename = UUID.randomUUID().toString() + extension;
 
-            Path destination = uploadPath.resolve(uniqueFilename);
-            Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
+            // Upload to Supabase Storage via REST API
+            String uploadUrl = supabaseUrl + "/storage/v1/object/item-photos/" + uniqueFilename;
 
-            // Return URL path that frontend can use to load the image
-            return "/uploads/" + uniqueFilename;
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(uploadUrl))
+                    .header("Authorization", "Bearer " + supabaseServiceKey)
+                    .header("Content-Type", contentType)
+                    .POST(HttpRequest.BodyPublishers.ofByteArray(file.getBytes()))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200 && response.statusCode() != 201) {
+                throw new RuntimeException("SYS-001: Supabase upload failed: " + response.body());
+            }
+
+            // Return the public URL
+            return supabaseUrl + "/storage/v1/object/public/item-photos/" + uniqueFilename;
 
         } catch (RuntimeException e) {
-            throw e; // rethrow validation errors as-is
-        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
             throw new RuntimeException("SYS-001: Failed to store uploaded file: " + e.getMessage());
         }
     }

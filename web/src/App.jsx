@@ -17,13 +17,15 @@ import { useAuth } from "./features/auth/AuthContext";
 import "./App.css";
 
 function App() {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user } = useAuth();
+    const home = isAuthenticated ? (user?.role === "ADMIN" ? "/admin" : "/dashboard") : "/login";
+
     return (
         <Router>
             <Routes>
                 {/* Public routes */}
-                <Route path="/login"    element={!isAuthenticated ? <LoginPage />    : <Navigate to="/dashboard" />} />
-                <Route path="/register" element={!isAuthenticated ? <RegisterPage /> : <Navigate to="/dashboard" />} />
+                <Route path="/login"    element={!isAuthenticated ? <LoginPage />    : <Navigate to={home} />} />
+                <Route path="/register" element={!isAuthenticated ? <RegisterPage /> : <Navigate to={home} />} />
                 <Route path="/oauth2/callback" element={<OAuth2Callback />} />
 
                 {/* Authenticated user routes */}
@@ -41,7 +43,7 @@ function App() {
                 <Route path="/admin/users"  element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
 
                 {/* Default */}
-                <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} />
+                <Route path="/" element={<Navigate to={home} />} />
             </Routes>
         </Router>
     );

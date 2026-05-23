@@ -40,7 +40,6 @@ public class AuthService {
         user.setPasswordHash(passwordEncoder.encode(request.password));
         User saved = userRepository.save(user);
 
-        // AC-1: Send welcome email on new account registration
         emailService.sendWelcomeEmail(saved);
 
         return saved;

@@ -21,7 +21,18 @@
 
         <activity android:name=".feature.auth.RegisterActivity" android:exported="false"/>
         <activity android:name=".feature.dashboard.DashboardActivity" android:exported="false"/>
+        <activity android:name=".feature.item.ItemDetailActivity"
+                android:parentActivityName=".MainActivity" />
 
+        <activity android:name=".feature.profile.ProfileActivity"
+                android:parentActivityName=".MainActivity" />
+        <activity android:name=".feature.item.ReportItemActivity"
+                android:parentActivityName=".MainActivity" />
+
+        <activity android:name=".feature.claim.ClaimSubmissionActivity"
+                android:parentActivityName=".feature.item.ItemDetailActivity" />
+        <activity android:name=".feature.myclaims.MyClaimsActivity" android:exported="false"/>
+        <activity android:name=".feature.myreports.MyReportsActivity" android:exported="false"/>
     </application>
 
 </manifest>

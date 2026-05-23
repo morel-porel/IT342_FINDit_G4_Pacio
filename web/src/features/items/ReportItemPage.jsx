@@ -30,21 +30,32 @@ function ReportItemPage() {
         setSubmitting(true);
         setSubmitError(null);
         try {
-            // In a full implementation, upload photo to storage and get URL.
-            // For now, we send null for imageUrl if no file is uploaded.
-            const payload = {
-                type: data.type,
-                name: data.name.trim(),
-                category: data.category,
-                description: data.description?.trim() || null,
-                dateLostFound: data.dateLostFound,
-                location: data.location.trim(),
-                imageUrl: null, // Photo upload URL would go here after storage integration
-            };
-            const response = await api.post("/items", payload);
+            const formData = new FormData();
+            formData.append("type", data.type);
+            formData.append("name", data.name.trim());
+            formData.append("category", data.category);
+            formData.append("dateLostFound", data.dateLostFound);
+            formData.append("location", data.location.trim());
+            if (data.description?.trim()) {
+                formData.append("description", data.description.trim());
+            }
+            if (photoFile) {
+                formData.append("photo", photoFile);
+            }
+
+            const response = await api.post("/items", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
             navigate(`/items/${response.data.id}`, { state: { justCreated: true } });
         } catch (err) {
-            setSubmitError(err.response?.data || "Something went wrong. Please try again.");
+            const data = err.response?.data;
+            if (typeof data === "string") {
+                setSubmitError(data);
+            } else if (data?.message) {
+                setSubmitError(data.message);
+            } else {
+                setSubmitError("Something went wrong. Please try again.");
+            }
         } finally {
             setSubmitting(false);
         }

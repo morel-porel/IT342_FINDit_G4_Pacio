@@ -10,6 +10,21 @@ const STATUS_META = {
     "APPROVED": { label: "Approved", cls: "status-approved" },
     "REJECTED": { label: "Rejected", cls: "status-rejected" },
 };
+function normalizeClaim(c) {
+    return {
+        ...c,
+        item: {
+            id:       c.itemId,
+            name:     c.itemName,
+            location: c.itemLocation,
+        },
+        claimant: {
+            id:       c.claimantId,
+            fullName: c.claimantName,
+            email:    c.claimantEmail,
+        },
+    };
+}
 
 function MyClaimsPage() {
     const { user } = useAuth();
@@ -22,7 +37,7 @@ function MyClaimsPage() {
 
     useEffect(() => {
         api.get("/claims")
-            .then(res => setClaims(res.data))
+            .then(res => setClaims(res.data.map(normalizeClaim)))
             .catch(() => setError("Failed to load your claims."))
             .finally(() => setLoading(false));
     }, []);

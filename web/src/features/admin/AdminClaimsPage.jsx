@@ -11,6 +11,24 @@ const STATUS_META = {
     "REJECTED": { label: "Rejected", cls: "status-rejected" },
 };
 
+function normalizeClaim(c) {
+    return {
+        ...c,
+        item: {
+            id:           c.itemId,
+            name:         c.itemName,
+            location:     c.itemLocation,
+            dateLostFound: c.itemDateLostFound ?? null,
+            description:  c.itemDescription ?? null,
+        },
+        claimant: {
+            id:       c.claimantId,
+            fullName: c.claimantName,
+            email:    c.claimantEmail,
+        },
+    };
+}
+
 function AdminClaimsPage() {
     const navigate = useNavigate();
     const [claims, setClaims] = useState([]);
@@ -22,9 +40,10 @@ function AdminClaimsPage() {
     useEffect(() => {
         api.get("/claims")
             .then(res => {
-                setClaims(res.data);
+                const normalizedClaims = res.data.map(normalizeClaim);
+                setClaims(normalizedClaims);
                 // Auto-select first pending claim if any
-                const firstPending = res.data.find(c => c.status === "PENDING");
+                const firstPending = normalizedClaims.find(c => c.status === "PENDING");
                 if (firstPending) setSelected(firstPending);
             })
             .catch(() => setError("Failed to load claims."))
@@ -37,9 +56,10 @@ function AdminClaimsPage() {
             await api.put(`/claims/${claimId}/${action}`);
             // Refresh claims list
             const res = await api.get("/claims");
-            setClaims(res.data);
+            const normalizedClaims = res.data.map(normalizeClaim);
+            setClaims(normalizedClaims);
             // Update selected to reflect new status
-            const updated = res.data.find(c => c.id === claimId);
+            const updated = normalizedClaims.find(c => c.id === claimId);
             if (updated) setSelected(updated);
         } catch {
             alert(`Failed to ${action} claim. Please try again.`);
